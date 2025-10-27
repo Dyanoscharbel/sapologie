@@ -8,8 +8,9 @@ const JWT_SECRET = process.env.JWT_SECRET || 'votre_secret_tres_long_et_securise
 // GET /api/admin/competitions/[id]/entries
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
+  const { params } = context;
   try {
     // Vérifier l'authentification admin
     const authHeader = request.headers.get('authorization');
