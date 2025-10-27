@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 
 const navigationItems = [
   { href: "/", label: "Accueil" },
+  { href: "/competitions", label: "Compétitions" },
   { href: "/vote", label: "Voter" },
   { href: "/about", label: "À propos" },
 ];

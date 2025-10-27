@@ -19,7 +19,8 @@ import {
   Loader2, 
   Trash2,
   Edit,
-  Eye
+  Eye,
+  Users
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -327,6 +328,15 @@ export default function AdminCompetitionsPage() {
 
                   {/* Actions */}
                   <div className="flex lg:flex-col items-center lg:items-end gap-2 lg:min-w-[180px]">
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => router.push(`/admin/competitions/${comp.id}/entries`)}
+                      className="btn-glow"
+                    >
+                      <Users className="h-4 w-4 mr-1" />
+                      Inscriptions
+                    </Button>
                     <Button
                       variant="outline"
                       size="sm"

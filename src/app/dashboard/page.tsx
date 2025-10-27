@@ -497,31 +497,32 @@ export default function DashboardPage() {
                 </CardContent>
               </Card>
 
-              {/* Contest Info */}
+              {/* Competitions Info */}
               <Card className="border-0 shadow-lg bg-gradient-to-br from-amber-50 to-amber-100/50">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <Trophy className="h-5 w-5 text-amber-600" />
-                    Concours en cours
+                    Compétitions
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-amber-900/70">Édition</span>
-                    <Badge className="bg-amber-600 text-white">Premium 2025</Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
+                  <p className="text-sm text-amber-900/70">
+                    Participez aux compétitions actives et gagnez des prix exceptionnels
+                  </p>
+                  <div className="flex items-center justify-between pt-2">
                     <span className="text-sm font-medium text-amber-900/70">Participants</span>
                     <span className="text-sm font-bold text-amber-900">{topParticipants.length}</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-amber-900/70">Fin du vote</span>
-                    <span className="text-sm font-bold text-amber-900">15 jours</span>
-                  </div>
                   <Button className="w-full bg-amber-600 hover:bg-amber-700 mt-4" asChild>
-                    <Link href="/rules">
+                    <Link href="/competitions">
                       <Trophy className="h-4 w-4 mr-2" />
-                      Voir les prix
+                      Voir les compétitions
+                    </Link>
+                  </Button>
+                  <Button variant="outline" className="w-full border-amber-200 text-amber-900 hover:bg-amber-100" asChild>
+                    <Link href="/rules">
+                      <Award className="h-4 w-4 mr-2" />
+                      Voir le règlement
                     </Link>
                   </Button>
                 </CardContent>
