@@ -6,19 +6,14 @@ const JWT_SECRET = process.env.JWT_SECRET || 'votre_secret_tres_long_et_securise
 
 export const dynamic = 'force-dynamic';
 
-type RouteParams = {
-  params: {
-    id: string;
-  };
-};
-
 // Récupérer toutes les inscriptions d'une compétition
 // GET /api/admin/competitions/[id]/entries
 
 export async function GET(
   request: NextRequest,
-  { params }: RouteParams
+  context: { params: { id: string } }
 ) {
+  const { id } = context.params;
   try {
     // Vérifier l'authentification admin
     const authHeader = request.headers.get('authorization');
@@ -39,7 +34,7 @@ export async function GET(
       );
     }
 
-    const competitionId = params.id;
+    const competitionId = id;
 
     // Récupérer toutes les inscriptions avec les infos des participants
     const entries = await query(
