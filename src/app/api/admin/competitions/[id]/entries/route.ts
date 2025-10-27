@@ -1,16 +1,18 @@
-import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'votre_secret_tres_long_et_securise';
 
+export const dynamic = 'force-dynamic';
+
 // Récupérer toutes les inscriptions d'une compétition
 // GET /api/admin/competitions/[id]/entries
+import { NextRequest, NextResponse } from 'next/server';
+
 export async function GET(
-  request: Request,
-  context: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
-  const { params } = context;
   try {
     // Vérifier l'authentification admin
     const authHeader = request.headers.get('authorization');
