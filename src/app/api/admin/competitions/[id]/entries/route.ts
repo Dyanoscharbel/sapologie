@@ -1,3 +1,4 @@
+import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import jwt from 'jsonwebtoken';
 
@@ -5,13 +6,18 @@ const JWT_SECRET = process.env.JWT_SECRET || 'votre_secret_tres_long_et_securise
 
 export const dynamic = 'force-dynamic';
 
+type RouteParams = {
+  params: {
+    id: string;
+  };
+};
+
 // Récupérer toutes les inscriptions d'une compétition
 // GET /api/admin/competitions/[id]/entries
-import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ) {
   try {
     // Vérifier l'authentification admin
