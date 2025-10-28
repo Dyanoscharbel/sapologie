@@ -8,7 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'votre_secret_tres_long_et_securise
 // PATCH /api/admin/competitions/entries/[id]
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Vérifier l'authentification admin
@@ -30,7 +30,8 @@ export async function PATCH(
       );
     }
 
-    const entryId = params.id;
+    const { id } = await params;
+    const entryId = id;
     const { status } = await request.json();
 
     // Valider le statut
@@ -85,7 +86,7 @@ export async function PATCH(
 // DELETE /api/admin/competitions/entries/[id]
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Vérifier l'authentification admin
@@ -107,7 +108,8 @@ export async function DELETE(
       );
     }
 
-    const entryId = params.id;
+    const { id } = await params;
+    const entryId = id;
 
     // Vérifier que l'inscription existe
     const entries = await query(
