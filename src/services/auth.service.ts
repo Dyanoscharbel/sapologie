@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { query } from '@/lib/db';
+import { getCountryByName } from '@/lib/countries';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'votre_secret_tres_long_et_securise';
 const SALT_ROUNDS = 10;
@@ -11,8 +12,11 @@ export class AuthService {
     password: string;
     first_name: string;
     last_name: string;
+    country?: string;
+    phone?: string;
+    pseudo?: string;
   }) {
-    const { email, password, first_name, last_name } = userData;
+    const { email, password, first_name, last_name, country, phone, pseudo } = userData;
     
     // Vérifier si l'email existe déjà
     const existingUsers = await query(
@@ -27,10 +31,23 @@ export class AuthService {
     // Hacher le mot de passe
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-    // Créer l'utilisateur
+    // Générer un username (pseudo, ou sinon basé sur l'email)
+    const username = pseudo || email.split('@')[0];
+
+    // Récupérer les infos du pays (code + prefix)
+    let countryCode = null;
+    if (country) {
+      const countryData = getCountryByName(country);
+      if (countryData) {
+        // Stocker le format: "MA|+212" (code|prefix)
+        countryCode = `${countryData.code}|${countryData.prefix}`;
+      }
+    }
+
+    // Créer l'utilisateur - le numéro phone est utilisé aussi comme WhatsApp
     const result = await query(
-      'INSERT INTO users (email, password_hash, first_name, last_name) VALUES (?, ?, ?, ?)',
-      [email, hashedPassword, first_name, last_name]
+      'INSERT INTO users (username, email, password_hash, first_name, last_name, country, country_code, phone, whatsapp, pseudo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [username, email, hashedPassword, first_name, last_name, country || null, countryCode || null, phone || null, phone || null, pseudo || null]
     ) as any;
 
     const userId = result.insertId;

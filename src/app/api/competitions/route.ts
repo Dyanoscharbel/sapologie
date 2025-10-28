@@ -27,12 +27,17 @@ export async function GET() {
       
       // Récupérer les prix
       const prizes = await query(
-        'SELECT * FROM prizes WHERE competition_id = ? ORDER BY position',
+        'SELECT id, name, description, position, value, sponsor, image FROM prizes WHERE competition_id = ? ORDER BY position',
         [competition.id]
       ) as any[];
       
       competition.participants = participants || [];
       competition.prizes = prizes || [];
+      
+      // Ensure gender is set
+      if (!competition.gender) {
+        competition.gender = 'Mixte';
+      }
     }
     
     return NextResponse.json({ success: true, data: competitions });

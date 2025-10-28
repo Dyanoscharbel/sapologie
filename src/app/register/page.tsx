@@ -1,24 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { Crown, Eye, EyeOff, User, Mail, Lock } from "lucide-react";
+import { Crown, Eye, EyeOff, User, Mail, Lock, Phone, Globe } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
+import { COUNTRIES, getPrefixByCountry, getCountryByCode } from "@/lib/countries";
 
 type RegisterForm = {
   first_name: string;
   last_name: string;
+  pseudo?: string;
   email: string;
+  country: string;
+  phone: string;
   password: string;
   confirmPassword: string;
-  bio: string;
 };
 
 export default function RegisterPage() {
@@ -29,8 +31,18 @@ export default function RegisterPage() {
   const router = useRouter();
   const { register: registerUser } = useAuth();
   
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<RegisterForm>();
+  // Récupérer le nom du pays pour le code par défaut "MA" (Maroc)
+  const defaultCountryName = getCountryByCode("MA")?.name || "Maroc";
+  
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<RegisterForm>({
+    defaultValues: {
+      country: defaultCountryName
+    }
+  });
   const watchPassword = watch("password");
+  const watchCountry = watch("country");
+  
+  const phonePrefix = getPrefixByCountry(watchCountry);
 
   const onSubmit = async (data: RegisterForm) => {
     setIsLoading(true);
@@ -42,6 +54,9 @@ export default function RegisterPage() {
         password: data.password,
         first_name: data.first_name,
         last_name: data.last_name,
+        country: data.country,
+        phone: data.phone,
+        pseudo: data.pseudo,
       });
       router.push("/dashboard");
     } catch (error: any) {
@@ -149,17 +164,78 @@ export default function RegisterPage() {
                 {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
               </div>
 
-              {/* Bio */}
+              {/* Pseudo */}
               <div className="space-y-2">
-                <Label htmlFor="bio">Bio (optionnel)</Label>
-                <Textarea
-                  id="bio"
-                  placeholder="Parlez-nous de votre style, votre passion pour la mode..."
-                  className="resize-none rounded-xl focus-ring"
-                  rows={3}
-                  {...register("bio", { maxLength: { value: 200, message: "La bio ne peut pas dépasser 200 caractères" } })}
-                />
-                {errors.bio && <p className="text-sm text-red-600">{errors.bio.message}</p>}
+                <Label htmlFor="pseudo">Pseudo (optionnel)</Label>
+                <div className="relative">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                    <User className="h-4 w-4" />
+                  </div>
+                  <Input
+                    id="pseudo"
+                    type="text"
+                    placeholder="Votre pseudo..."
+                    className="pl-9 h-11 rounded-xl focus-ring"
+                    {...register("pseudo", { 
+                      minLength: { value: 2, message: "Le pseudo doit contenir au moins 2 caractères" }
+                    })}
+                  />
+                </div>
+                {errors.pseudo && <p className="text-sm text-red-600">{errors.pseudo.message}</p>}
+              </div>
+
+              {/* Pays & Téléphone côte à côte */}
+              <div className="grid grid-cols-2 gap-4">
+                {/* Pays */}
+                <div className="space-y-2">
+                  <Label htmlFor="country">Pays</Label>
+                  <div className="relative">
+                    <select
+                      id="country"
+                      className="w-full pl-8 pr-3 h-11 rounded-xl border border-gray-200 bg-white/60 placeholder:text-gray-500 text-gray-900 focus-visible:ring-2 focus-visible:ring-indigo-400 appearance-none cursor-pointer text-sm"
+                      {...register("country", { 
+                        required: "Le pays est requis"
+                      })}
+                    >
+                      <option value="">Sélectionnez un pays</option>
+                      {COUNTRIES.map((country) => (
+                        <option key={country.code} value={country.name}>
+                          {country.flag} {country.name}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-gray-400">
+                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                      </svg>
+                    </div>
+                  </div>
+                  {errors.country && <p className="text-xs text-red-600">{errors.country.message}</p>}
+                </div>
+
+                {/* Numéro de téléphone */}
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Numéro whatsapp</Label>
+                  <div className="relative">
+                    {phonePrefix && (
+                      <div className="pointer-events-none absolute inset-y-0 left-2 flex items-center text-gray-600 font-semibold text-sm">
+                        {phonePrefix}
+                      </div>
+                    )}
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder={phonePrefix ? "6XXXXXXXX" : "Sélectionnez un pays"}
+                      className={`h-11 rounded-xl focus-ring text-sm ${phonePrefix ? "pl-20" : "pl-3"}`}
+                      disabled={!phonePrefix}
+                      {...register("phone", { 
+                        required: "Le numéro de téléphone est requis",
+                        minLength: { value: 10, message: "Minimum 10 chiffres" }
+                      })}
+                    />
+                  </div>
+                  {errors.phone && <p className="text-xs text-red-600">{errors.phone.message}</p>}
+                </div>
               </div>
 
               {/* Mot de passe */}

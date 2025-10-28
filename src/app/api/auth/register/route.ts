@@ -1,14 +1,24 @@
 import { NextResponse } from 'next/server';
 import { AuthService } from '@/services/auth.service';
+import { COUNTRIES } from '@/lib/countries';
 
 export async function POST(request: Request) {
   try {
     const userData = await request.json();
     
-    // Validation des données
-    if (!userData.email || !userData.password || !userData.first_name || !userData.last_name) {
+    // Validation des données requises
+    if (!userData.email || !userData.password || !userData.first_name || !userData.last_name || !userData.country || !userData.phone) {
       return NextResponse.json(
         { success: false, message: 'Tous les champs sont requis' },
+        { status: 400 }
+      );
+    }
+
+    // Validation du pays
+    const countryExists = COUNTRIES.some(c => c.name === userData.country);
+    if (!countryExists) {
+      return NextResponse.json(
+        { success: false, message: 'Pays invalide' },
         { status: 400 }
       );
     }
@@ -26,6 +36,15 @@ export async function POST(request: Request) {
     if (userData.password.length < 6) {
       return NextResponse.json(
         { success: false, message: 'Le mot de passe doit contenir au moins 6 caractères' },
+        { status: 400 }
+      );
+    }
+
+    // Validation du numéro de téléphone (minimum 10 chiffres)
+    const phoneDigits = userData.phone.replace(/\D/g, '');
+    if (phoneDigits.length < 10) {
+      return NextResponse.json(
+        { success: false, message: 'Le numéro de téléphone doit contenir au moins 10 chiffres' },
         { status: 400 }
       );
     }

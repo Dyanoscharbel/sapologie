@@ -7,13 +7,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Filter, CheckCircle2, Clock, Euro, Eye, Mail, Calendar, X, Loader2, Trash2 } from "lucide-react";
+import { Search, Filter, CheckCircle2, Clock, Euro, Eye, Mail, Calendar, X, Loader2, Trash2, Phone, MessageCircle, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface User {
   id: number;
   name: string;
   email: string;
+  phone?: string;
+  whatsapp?: string;
+  country?: string;
+  pseudo?: string;
   avatarBase64?: string;
   createdAt: string;
   isActive: boolean;
@@ -262,6 +266,34 @@ export default function AdminUsersListPage() {
                         {user.bio}
                       </p>
                     )}
+                    
+                    {/* Contact Info */}
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {user.pseudo && (
+                        <Badge variant="secondary" className="text-xs gap-1">
+                          <span className="font-medium">{user.pseudo}</span>
+                        </Badge>
+                      )}
+                      {user.country && (
+                        <Badge variant="outline" className="text-xs gap-1">
+                          <Globe className="h-2.5 w-2.5" aria-hidden="true" />
+                          {user.country}
+                        </Badge>
+                      )}
+                      {user.phone && (
+                        <Badge variant="outline" className="text-xs gap-1">
+                          <Phone className="h-2.5 w-2.5" aria-hidden="true" />
+                          Tél.
+                        </Badge>
+                      )}
+                      {user.whatsapp && (
+                        <Badge variant="outline" className="text-xs gap-1">
+                          <MessageCircle className="h-2.5 w-2.5" aria-hidden="true" />
+                          WhatsApp
+                        </Badge>
+                      )}
+                    </div>
+                    
                     <div className="flex items-center gap-3 text-xs text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" aria-hidden="true" />

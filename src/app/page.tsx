@@ -125,7 +125,7 @@ export default function Home() {
               <div className="relative animate-scale-in">
                 <div className="relative aspect-[3/4] rounded-3xl overflow-hidden card-premium group">
                   <img
-                    src="https://images.unsplash.com/photo-1490367532201-b9bc1dc483f6?w=800&h=1000&fit=crop"
+                    src="/couple.jpg"
                     alt="Portrait élégant du concours de sapologie"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />

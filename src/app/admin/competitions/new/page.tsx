@@ -9,8 +9,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Save, Loader2 } from "lucide-react";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ArrowLeft, Save, Loader2, Upload, X, Image as ImageIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+interface Prize {
+  id: string;
+  name: string;
+  image: string | null;
+}
 
 export default function NewCompetitionPage() {
   const router = useRouter();
@@ -21,11 +34,54 @@ export default function NewCompetitionPage() {
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [prizeFirst, setPrizeFirst] = useState("");
-  const [prizeSecond, setPrizeSecond] = useState("");
-  const [prizeThird, setPrizeThird] = useState("");
+  const [gender, setGender] = useState("Mixte");
+  const [bannerImage, setBannerImage] = useState<string | null>(null);
+  const [bannerPreview, setBannerPreview] = useState<string | null>(null);
+  const [prizes, setPrizes] = useState<Prize[]>([
+    { id: "1", name: "", image: null },
+    { id: "2", name: "", image: null },
+  ]);
   const [isActive, setIsActive] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  const handleBannerUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64 = event.target?.result as string;
+      setBannerImage(base64);
+      setBannerPreview(base64);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handlePrizeImageUpload = (prizeId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64 = event.target?.result as string;
+      setPrizes(prizes.map(p => p.id === prizeId ? { ...p, image: base64 } : p));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const addPrize = () => {
+    if (prizes.length < 5) {
+      setPrizes([...prizes, { id: String(prizes.length + 1), name: "", image: null }]);
+    }
+  };
+
+  const removePrize = (prizeId: string) => {
+    setPrizes(prizes.filter(p => p.id !== prizeId));
+  };
+
+  const updatePrizeName = (prizeId: string, name: string) => {
+    setPrizes(prizes.map(p => p.id === prizeId ? { ...p, name } : p));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,14 +114,18 @@ export default function NewCompetitionPage() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          title,
+          name: title,
           description,
-          startDate,
-          endDate,
-          prizeFirst,
-          prizeSecond,
-          prizeThird,
-          isActive
+          start_date: startDate,
+          end_date: endDate,
+          gender,
+          banner_image: bannerImage,
+          is_active: isActive,
+          prizes: prizes.filter(p => p.name.trim()).map((p, index) => ({
+            name: p.name,
+            image: p.image,
+            position: index + 1
+          }))
         })
       });
 
@@ -148,6 +208,70 @@ export default function NewCompetitionPage() {
               />
             </div>
 
+            {/* Genre */}
+            <div className="space-y-2">
+              <Label htmlFor="gender">
+                Type de compétition <span className="text-red-500">*</span>
+              </Label>
+              <Select value={gender} onValueChange={setGender}>
+                <SelectTrigger id="gender">
+                  <SelectValue placeholder="Sélectionnez le type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Mixte">Mixte</SelectItem>
+                  <SelectItem value="Masculin">Masculin</SelectItem>
+                  <SelectItem value="Féminin">Féminin</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Bannière */}
+            <div className="space-y-2">
+              <Label htmlFor="banner">Bannière de la compétition</Label>
+              <div className="border-2 border-dashed rounded-lg p-6 text-center">
+                {bannerPreview ? (
+                  <div className="space-y-4">
+                    <img src={bannerPreview} alt="Bannière" className="w-full h-40 object-cover rounded-lg" />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setBannerImage(null);
+                        setBannerPreview(null);
+                      }}
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Supprimer la bannière
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <ImageIcon className="h-12 w-12 text-muted-foreground mx-auto" />
+                    <p className="text-sm text-muted-foreground">
+                      Glissez-déposez ou cliquez pour uploader une bannière
+                    </p>
+                    <input
+                      id="banner"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleBannerUpload}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => document.getElementById("banner")?.click()}
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      Choisir une image
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Dates */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -178,36 +302,99 @@ export default function NewCompetitionPage() {
 
             {/* Prix */}
             <div className="space-y-4">
-              <Label className="text-base font-semibold">Prix et récompenses</Label>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="prizeFirst">🥇 1er prix</Label>
-                  <Input
-                    id="prizeFirst"
-                    value={prizeFirst}
-                    onChange={(e) => setPrizeFirst(e.target.value)}
-                    placeholder="Ex: 500€ + Couronne"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="prizeSecond">🥈 2e prix</Label>
-                  <Input
-                    id="prizeSecond"
-                    value={prizeSecond}
-                    onChange={(e) => setPrizeSecond(e.target.value)}
-                    placeholder="Ex: 300€"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="prizeThird">🥉 3e prix</Label>
-                  <Input
-                    id="prizeThird"
-                    value={prizeThird}
-                    onChange={(e) => setPrizeThird(e.target.value)}
-                    placeholder="Ex: 150€"
-                  />
-                </div>
+              <div className="flex items-center justify-between">
+                <Label className="text-base font-semibold">Prix et récompenses</Label>
+                <span className="text-sm text-muted-foreground">{prizes.length}/5 prix</span>
               </div>
+              <div className="space-y-4">
+                {prizes.map((prize, index) => (
+                  <Card key={prize.id} className="p-4">
+                    <div className="space-y-4">
+                      {/* Position Medal */}
+                      <div className="text-sm font-medium">
+                        {index === 0 ? "🥇 1er prix" : index === 1 ? "🥈 2e prix" : index === 2 ? "🥉 3e prix" : `🏅 ${index + 1}e prix`}
+                      </div>
+
+                      {/* Prix Name */}
+                      <div className="space-y-2">
+                        <Label htmlFor={`prize-name-${prize.id}`}>Description du prix</Label>
+                        <Input
+                          id={`prize-name-${prize.id}`}
+                          value={prize.name}
+                          onChange={(e) => updatePrizeName(prize.id, e.target.value)}
+                          placeholder={index === 0 ? "Ex: 500€ + Couronne" : index === 1 ? "Ex: 300€" : "Ex: 150€"}
+                        />
+                      </div>
+
+                      {/* Prize Image */}
+                      <div className="space-y-2">
+                        <Label htmlFor={`prize-image-${prize.id}`}>Image du prix</Label>
+                        <div className="border-2 border-dashed rounded-lg p-4 text-center">
+                          {prize.image ? (
+                            <div className="space-y-2">
+                              <img src={prize.image} alt="Prix" className="w-full h-24 object-cover rounded-lg" />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setPrizes(prizes.map(p => p.id === prize.id ? { ...p, image: null } : p))}
+                              >
+                                <X className="h-4 w-4 mr-2" />
+                                Supprimer
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="space-y-2 py-4">
+                              <ImageIcon className="h-8 w-8 text-muted-foreground mx-auto" />
+                              <input
+                                id={`prize-image-${prize.id}`}
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handlePrizeImageUpload(prize.id, e)}
+                                className="hidden"
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => document.getElementById(`prize-image-${prize.id}`)?.click()}
+                              >
+                                <Upload className="h-4 w-4 mr-2" />
+                                Ajouter une image
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Remove Prize Button */}
+                      {prizes.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => removePrize(prize.id)}
+                        >
+                          <X className="h-4 w-4 mr-2" />
+                          Supprimer ce prix
+                        </Button>
+                      )}
+                    </div>
+                  </Card>
+                ))}
+              </div>
+
+              {prizes.length < 5 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={addPrize}
+                >
+                  + Ajouter un prix
+                </Button>
+              )}
             </div>
 
             {/* Statut actif */}

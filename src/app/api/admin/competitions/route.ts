@@ -35,6 +35,8 @@ export async function GET(request: Request) {
         prize_first,
         prize_second,
         prize_third,
+        gender,
+        banner_image,
         is_active,
         created_at,
         updated_at
@@ -58,6 +60,8 @@ export async function GET(request: Request) {
         prizeFirst: comp.prize_first,
         prizeSecond: comp.prize_second,
         prizeThird: comp.prize_third,
+        gender: comp.gender || 'Mixte',
+        bannerImage: comp.banner_image,
         isActive: Boolean(comp.is_active),
         createdAt: new Date(comp.created_at).toLocaleDateString('fr-FR'),
         updatedAt: comp.updated_at ? new Date(comp.updated_at).toLocaleDateString('fr-FR') : null
@@ -101,26 +105,46 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { title, description, startDate, endDate, prizeFirst, prizeSecond, prizeThird, isActive } = body;
+    const { name, description, start_date, end_date, gender, banner_image, is_active, prizes } = body;
 
     // Validation
-    if (!title || !startDate || !endDate) {
+    if (!name || !start_date || !end_date) {
       return NextResponse.json(
-        { success: false, message: 'Titre, date de début et date de fin sont requis' },
+        { success: false, message: 'Nom, date de début et date de fin sont requis' },
         { status: 400 }
       );
     }
 
     // Créer la compétition
     const result = await query(`
-      INSERT INTO competitions (name, description, start_date, end_date, prize_first, prize_second, prize_third, is_active)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `, [title, description || '', startDate, endDate, prizeFirst || '', prizeSecond || '', prizeThird || '', isActive ? 1 : 0]) as any;
+      INSERT INTO competitions (name, description, start_date, end_date, gender, banner_image, is_active)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `, [
+      name, 
+      description || '', 
+      start_date, 
+      end_date, 
+      gender || 'Mixte',
+      banner_image || null,
+      is_active ? 1 : 0
+    ]) as any;
+
+    const competitionId = result.insertId;
+
+    // Ajouter les prix s'il y en a
+    if (prizes && Array.isArray(prizes) && prizes.length > 0) {
+      for (const prize of prizes) {
+        await query(`
+          INSERT INTO prizes (competition_id, name, image, position)
+          VALUES (?, ?, ?, ?)
+        `, [competitionId, prize.name, prize.image || null, prize.position]);
+      }
+    }
 
     return NextResponse.json({
       success: true,
       message: 'Compétition créée avec succès',
-      data: { id: result.insertId }
+      data: { id: competitionId }
     });
 
   } catch (error: any) {

@@ -20,7 +20,10 @@ import {
   FileText,
   Loader2,
   Heart,
-  Trash2
+  Trash2,
+  Phone,
+  Globe,
+  MessageCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -28,8 +31,14 @@ interface UserDetail {
   id: number;
   name: string;
   email: string;
+  username: string;
   firstName: string;
   lastName: string;
+  country?: string;
+  countryCode?: string;
+  phone?: string;
+  whatsapp?: string;
+  pseudo?: string;
   avatarBase64?: string;
   createdAt: string;
   isActive: boolean;
@@ -292,6 +301,95 @@ export default function AdminUserDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Info */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Contact Info Card */}
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-cyan-50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Phone className="h-5 w-5 text-primary" aria-hidden="true" />
+                Informations de contact
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {user.username && (
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-blue-500/10 rounded-lg mt-1">
+                      <UserIcon className="h-4 w-4 text-blue-600" aria-hidden="true" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground">Nom d'utilisateur</p>
+                      <p className="text-sm font-semibold text-foreground">{user.username}</p>
+                    </div>
+                  </div>
+                )}
+                
+                {user.pseudo && (
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-purple-500/10 rounded-lg mt-1">
+                      <UserIcon className="h-4 w-4 text-purple-600" aria-hidden="true" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground">Pseudo</p>
+                      <p className="text-sm font-semibold text-foreground">{user.pseudo}</p>
+                    </div>
+                  </div>
+                )}
+
+                {user.phone && (
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-green-500/10 rounded-lg mt-1">
+                      <Phone className="h-4 w-4 text-green-600" aria-hidden="true" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground">Téléphone</p>
+                      <p className="text-sm font-semibold text-foreground">{user.phone}</p>
+                    </div>
+                  </div>
+                )}
+
+                {user.whatsapp && (
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-teal-500/10 rounded-lg mt-1">
+                      <MessageCircle className="h-4 w-4 text-teal-600" aria-hidden="true" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground">WhatsApp</p>
+                      <p className="text-sm font-semibold text-foreground">{user.whatsapp}</p>
+                    </div>
+                  </div>
+                )}
+
+                {user.country && (
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-red-500/10 rounded-lg mt-1">
+                      <Globe className="h-4 w-4 text-red-600" aria-hidden="true" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground">Pays</p>
+                      <p className="text-sm font-semibold text-foreground">
+                        {user.countryCode && `${user.countryCode} - `}{user.country}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {user.firstName || user.lastName ? (
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-indigo-500/10 rounded-lg mt-1">
+                      <UserIcon className="h-4 w-4 text-indigo-600" aria-hidden="true" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground">Nom complet</p>
+                      <p className="text-sm font-semibold text-foreground">
+                        {user.firstName} {user.lastName}
+                      </p>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Bio Card */}
           {user.participant && (
             <Card className="border-0 shadow-lg">

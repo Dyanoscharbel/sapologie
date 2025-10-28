@@ -17,6 +17,8 @@ interface Competition {
   start_date: string;
   end_date: string;
   is_active: boolean;
+  gender?: string;
+  banner_image?: string;
   max_votes_per_user: number;
   created_by_name?: string;
   participantsCount: number;
@@ -25,6 +27,7 @@ interface Competition {
     name: string;
     position: number;
     value?: number;
+    image?: string;
   }>;
 }
 
@@ -142,11 +145,28 @@ export default function CompetitionsPage() {
                   
                   return (
                     <Card key={competition.id} className="card-premium overflow-hidden group hover:shadow-2xl transition-all">
+                      {/* Banner Image */}
+                      {competition.banner_image && (
+                        <div className="relative w-full h-48 overflow-hidden bg-muted">
+                          <img 
+                            src={competition.banner_image} 
+                            alt={competition.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                        </div>
+                      )}
+                      
                       <CardHeader className="relative pb-4">
-                        <div className="absolute top-6 right-6">
+                        <div className="absolute top-6 right-6 flex gap-2">
                           <Badge className={`${status.color} text-white border-0`}>
                             {status.label}
                           </Badge>
+                          {competition.gender && competition.gender !== 'Mixte' && (
+                            <Badge variant="secondary" className="bg-purple-100 text-purple-900">
+                              {competition.gender === 'Féminin' ? '👩' : '👨'} {competition.gender}
+                            </Badge>
+                          )}
                         </div>
                         
                         <div className="flex items-start gap-4">
@@ -217,15 +237,24 @@ export default function CompetitionsPage() {
                               <Award className="h-4 w-4 text-amber-600" />
                               <span className="text-sm font-semibold text-amber-900">Prix à gagner</span>
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-3">
                               {competition.prizes.slice(0, 3).map((prize) => (
-                                <div key={prize.id} className="flex items-center gap-2 text-sm">
-                                  <Badge variant="secondary" className="bg-amber-200 text-amber-900">
-                                    {prize.position === 1 ? '🥇' : prize.position === 2 ? '🥈' : '🥉'}
-                                  </Badge>
-                                  <span className="font-medium text-amber-900">{prize.name}</span>
+                                <div key={prize.id} className="flex items-center gap-3 text-sm bg-white/50 rounded-lg p-2">
+                                  {prize.image && (
+                                    <img 
+                                      src={prize.image} 
+                                      alt={prize.name}
+                                      className="w-10 h-10 object-cover rounded-md"
+                                    />
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <Badge variant="secondary" className="bg-amber-200 text-amber-900 mb-1">
+                                      {prize.position === 1 ? '🥇' : prize.position === 2 ? '🥈' : '🥉'}
+                                    </Badge>
+                                    <p className="font-medium text-amber-900 truncate">{prize.name}</p>
+                                  </div>
                                   {prize.value && (
-                                    <span className="text-amber-700 ml-auto">{prize.value}€</span>
+                                    <span className="text-amber-700 font-semibold whitespace-nowrap">{prize.value}€</span>
                                   )}
                                 </div>
                               ))}

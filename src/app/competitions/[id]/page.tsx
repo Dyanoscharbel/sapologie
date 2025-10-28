@@ -37,6 +37,7 @@ interface Prize {
   position: number;
   value?: number;
   sponsor?: string;
+  image?: string;
 }
 
 interface Competition {
@@ -46,6 +47,8 @@ interface Competition {
   start_date: string;
   end_date: string;
   is_active: boolean;
+  gender?: string;
+  banner_image?: string;
   max_votes_per_user: number;
   created_by_name?: string;
   participants: Participant[];
@@ -245,8 +248,20 @@ export default function CompetitionDetailPage() {
       <Navigation />
       
       <main className="flex-1">
+        {/* Banner Image */}
+        {competition.banner_image && (
+          <div className="relative w-full h-64 md:h-80 overflow-hidden bg-muted">
+            <img 
+              src={competition.banner_image} 
+              alt={competition.name}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          </div>
+        )}
+        
         {/* Hero Section */}
-        <section className="relative py-12 overflow-hidden bg-gradient-to-br from-primary/10 via-purple-500/10 to-pink-500/10">
+        <section className={`relative py-12 overflow-hidden ${competition.banner_image ? 'bg-gradient-to-b from-background to-muted/30' : 'bg-gradient-to-br from-primary/10 via-purple-500/10 to-pink-500/10'}`}>
           <div className="container-premium">
             <Button variant="ghost" asChild className="mb-6">
               <Link href="/competitions">
@@ -259,9 +274,16 @@ export default function CompetitionDetailPage() {
               <div className="lg:col-span-2 space-y-6">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
-                    <Badge className={`${status.color} text-white border-0 mb-4`}>
-                      {status.label}
-                    </Badge>
+                    <div className="flex items-center gap-2 mb-4 flex-wrap">
+                      <Badge className={`${status.color} text-white border-0`}>
+                        {status.label}
+                      </Badge>
+                      {competition.gender && competition.gender !== 'Mixte' && (
+                        <Badge variant="secondary" className="bg-purple-100 text-purple-900">
+                          {competition.gender === 'Féminin' ? '👩' : '👨'} {competition.gender}
+                        </Badge>
+                      )}
+                    </div>
                     <h1 className="text-4xl sm:text-5xl font-bold mb-4">
                       {competition.name}
                     </h1>

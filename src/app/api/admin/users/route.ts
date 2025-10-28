@@ -35,6 +35,10 @@ export async function GET(request: Request) {
         u.email,
         u.first_name,
         u.last_name,
+        u.phone,
+        u.whatsapp,
+        u.country,
+        u.pseudo,
         u.avatar_base64,
         u.created_at,
         u.is_active,
@@ -61,6 +65,10 @@ export async function GET(request: Request) {
         ? `${user.first_name} ${user.last_name}` 
         : user.email.split('@')[0],
       email: user.email,
+      phone: user.phone,
+      whatsapp: user.whatsapp,
+      country: user.country,
+      pseudo: user.pseudo,
       avatarBase64: user.avatar_base64 || user.primary_media, // Utiliser la photo principale comme fallback
       createdAt: new Date(user.created_at).toLocaleDateString('fr-FR'),
       isActive: user.is_active,
