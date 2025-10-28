@@ -8,10 +8,11 @@ const JWT_SECRET = process.env.JWT_SECRET || 'votre_secret_tres_long_et_securise
 // POST /api/competitions/[id]/join
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const competitionId = params.id;
+    const { id } = await params;
+    const competitionId = id;
     
     // Vérifier l'authentification
     const authHeader = request.headers.get('authorization');
@@ -153,10 +154,11 @@ export async function POST(
 // GET /api/competitions/[id]/join
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const competitionId = params.id;
+    const { id } = await params;
+    const competitionId = id;
     
     // Vérifier l'authentification
     const authHeader = request.headers.get('authorization');

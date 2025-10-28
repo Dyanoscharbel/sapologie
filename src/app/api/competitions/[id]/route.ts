@@ -8,10 +8,11 @@ const JWT_SECRET = process.env.JWT_SECRET || 'votre_secret_tres_long_et_securise
 // GET /api/competitions/[id]
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const competitionId = params.id;
+    const { id } = await params;
+    const competitionId = id;
     
     // Récupérer la compétition
     const competitions = await query(
